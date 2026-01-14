@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>█▓░ 加密生日协议 v3.0 ░▓█</title>
+    <style>
+        /* ==================== 密码界面 ==================== */
+        #password-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            flex-direction: column;
+        }
+        .password-box {
+            background: rgba(0, 30, 0, 0.9);
+            border: 2px solid #00ff41;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 50px #00ff41;
+        }
+        .password-title {
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #00ff41;
+        }
+        .password-input {
+            background: #001100;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            font-size: 20px;
+            padding: 15px;
+            width: 200px;
+            text-align: center;
+            letter-spacing: 5px;
+            outline: none;
+            border-radius: 5px;
+        }
+        .password-hint {
+            color: #008800;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .password-error {
+            color: #ff0044;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        /* ==================== 主界面（初始隐藏） ==================== */
+        #main-content {
+            display: none;
+        }
+        
+        /* ==================== 原始样式（保持不变） ==================== */
+        * { margin: 0; padding: 0; font-family: 'Courier New', monospace; }
+        body {
+            background: #0a0a0a;
+            color: #00ff41;
+            overflow: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+        /* 二进制瀑布背景 */
+        #binary-fall {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .binary-char {
+            position: absolute;
+            color: #003300;
+            font-size: 18px;
+            animation: fall linear forwards;
+            text-shadow: 0 0 8px #00ff41;
+            opacity: 0.7;
+        }
+        /* 扫描线 */
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff41, transparent);
+            box-shadow: 0 0 10px #00ff41;
+            animation: scan 3s linear infinite;
+            z-index: 1;
+            display: none;
+        }
+        /* 声波纹波 */
+        .sound-wave {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+        .wave-bar {
+            width: 4px;
+            background: #00ff41;
+            border-radius: 2px;
+            animation: wave 1.5s ease-in-out infinite;
+            box-shadow: 0 0 10px #00ff41;
+        }
+        /* 容器 */
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            border: 1px solid #00ff41;
+            box-shadow: 0 0 50px #00ff41, inset 0 0 30px rgba(0, 255, 65, 0.1);
+            padding: 30px;
+            position: relative;
+            z-index: 2;
+            background: rgba(10, 20, 10, 0.85);
+            backdrop-filter: blur(5px);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px dashed #00ff41;
+            padding-bottom: 20px;
+            position: relative;
+        }
+        .header h1 {
+            font-size: 28px;
+            letter-spacing: 5px;
+            animation: blink 1s infinite, rainbow 8s infinite;
+            background: linear-gradient(90deg, #00ff41, #00ccff, #ff00ff, #ffff00, #00ff41);
+            background-size: 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* 多段进度条 */
+        .multi-progress {
+            width: 100%;
+            height: 25px;
+            background: #002200;
+            border: 1px solid #00ff41;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-segment {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, #003300, #00ff41, #00cc00);
+            width: 0%;
+            transition: width 1.5s ease-in-out;
+            box-shadow: inset 0 0 20px #00ff41;
+        }
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 25px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ff41;
+        }
+        /* 终端 */
+        .terminal {
+            line-height: 1.8;
+            font-size: 19px;
+            text-shadow: 0 0 5px #00ff41;
+        }
+        .line {
+            margin-bottom: 15px;
+            opacity: 0;
+            animation: type 0.3s forwards;
+            position: relative;
+            padding-left: 10px;
+        }
+        .line::before {
+            content: '>';
+            position: absolute;
+            left: -10px;
+            color: #ffff00;
+            animation: cursor-blink 1s infinite;
+        }
+        /* 交互控制台 */
+        .console-input {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(0, 30, 0, 0.7);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+        }
+        .console-input input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #00ff41;
+            font-size: 18px;
+            padding: 10px;
+            outline: none;
+            font-family: 'Courier New', monospace;
+        }
+        .console-input input::placeholder {
+            color: #006600;
+        }
+        .hidden-msg {
+            color: #0a0a0a;
+            background: #0a0a0a;
+            padding: 8px;
+            cursor: default;
+            transition: 0.3s;
+            margin-top: 30px;
+            border: 1px dashed #00ff41;
+            font-size: 14px;
+        }
+        .hidden-msg:hover {
+            color: #00ff41;
+            background: #001a00;
+            box-shadow: 0 0 20px #00ff41;
+        }
+        /* 彩蛋 */
+        .easter-egg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 12px;
+            color: #003300;
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 100;
+        }
+        .easter-egg:hover {
+            color: #00ff41;
+            text-shadow: 0 0 10px #00ff41;
+        }
+        /* 动画 */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        @keyframes rainbow {
+            0% { background-position: 0%; }
+            100% { background-position: 400%; }
+        }
+        @keyframes type {
+            to { opacity: 1; }
+        }
+        @keyframes fall {
+            to { transform: translateY(100vh); opacity: 0; }
+        }
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        @keyframes wave {
+            0%, 100% { height: 5px; }
+            50% { height: 40px; }
+        }
+        @keyframes cursor-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        /* 延迟设置 */
+        .line:nth-child(1) { animation-delay: 0.5s; }
+        .line:nth-child(2) { animation-delay: 1.5s; }
+        .line:nth-child(3) { animation-delay: 2.5s; }
+        .line:nth-child(4) { animation-delay: 3.5s; }
+        .line:nth-child(5) { animation-delay: 4.5s; }
+        .line:nth-child(6) { animation-delay: 5.5s; }
+        .line:nth-child(7) { animation-delay: 6.5s; }
+        .line:nth-child(8) { animation-delay: 7.5s; }
+        .line:nth-child(9) { animation-delay: 8.5s; }
+        .line:nth-child(10) { animation-delay: 9.5s; }
+        
+        /* 新增动画：拥抱特效 */
+        @keyframes hug-animation {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .hug-emoji {
+            position: fixed;
+            font-size: 80px;
+            z-index: 9999;
+            animation: hug-animation 1.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== 密码界面 ==================== -->
+    <div id="password-screen">
+        <div class="password-box">
+            <div class="password-title">█▓░ 加密生日协议访问系统 ░▓█</div>
+            <input type="password" class="password-input" id="password" placeholder="输入4位密码" maxlength="4" autofocus>
+            <div class="password-hint">提示：雪的生日日期 (月日)</div>
+            <div class="password-error" id="error-msg">❌ 密码错误！请重试</div>
+        </div>
+    </div>
+    
+    <!-- ==================== 主界面 ==================== -->
+    <div id="main-content">
+        <!-- 二进制瀑布 -->
+        <div id="binary-fall"></div>
+        
+        <!-- 扫描线 -->
+        <div class="scan-line" id="scanLine"></div>
+        
+        <!-- 声波纹波 -->
+        <div class="sound-wave" id="soundWave"></div>
+        
+        <div class="container">
+            <div class="header">
+                <h1>█▓░ 终极生日协议启动系统 v3.0 ░▓█</h1>
+            </div>
+            
+            <div class="terminal">
+                <div class="line">初始化量子计算节点...</div>
+                <div class="line">扫描时间轴... 锁定日期: <span style="color:#00ccff;">2025-01-15</span></div>
+                <div class="line">检测到生物特征信号... DNA匹配中...</div>
+                <div class="line">身份确认: 用户 [<span style="color:#ff66ff; text-shadow:0 0 10px #ff66ff;">雪</span>]</div>
+                <div class="line">加载核心协议: HAPPY_BIRTHDAY.EXE</div>
+                <div class="line">多线程下载进度:</div>
+                
+                <!-- 多段进度条 -->
+                <div class="multi-progress">
+                    <div class="progress-segment" id="progress1"></div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+                
+                <div class="line">协议校验中... <span id="statusText" style="color:#ffff00;">[等待]</span></div>
+                <div class="line">执行最终指令:</div>
+                <div class="line" style="color:#00ccff; font-size:24px; margin:20px 0; padding-left:0;">
+                    <span style="color:#ff66ff;">█</span> 傻子 生日快乐！<br>
+                    <span style="color:#ff66ff;">█</span> 多喝热水.exe <span style="color:#00ff00;">[已激活 | 最高权限]</span>
+                </div>
+                <div class="line">协议签署: <span style="color:#ff66ff; animation:blink 1s infinite;">槐梦</span> | 传输时间: 现在-永远</div>
+            </div>
+            
+            <!-- 交互控制台（更新了提示） -->
+            <div class="console-input">
+                <input type="text" id="commandInput" placeholder="输入指令 (help查看全部)" autocomplete="off">
+            </div>
+            
+            <div class="hidden-msg" title="点击显示彩蛋" onclick="showEasterEgg()">
+                // HIDDEN_MSG: 雪，愿你的代码永无bug，快乐栈溢出。<br>
+                // 生日特权已授予：无限量热水供应权限。<br>
+                // [点击此处激活隐藏协议]
+            </div>
+        </div>
+        
+        <!-- 彩蛋 -->
+        <div class="easter-egg" onclick="showMatrix()">⚡激活隐藏矩阵</div>
+    </div>
+
+    <script>
+        // ==================== 密码验证系统 ====================
+        const passwordInput = document.getElementById('password');
+        const errorMsg = document.getElementById('error-msg');
+        const passwordScreen = document.getElementById('password-screen');
+        const mainContent = document.getElementById('main-content');
+        
+        // 正确密码：0115（1月15日）
+        const CORRECT_PASSWORD = "0115";
+        
+        passwordInput.addEventListener('input', function() {
+            // 自动验证（输入满4位时）
+            if (this.value.length === 4) {
+                if (this.value === CORRECT_PASSWORD) {
+                    // 密码正确 - 解锁内容
+                    unlockContent();
+                } else {
+                    // 密码错误
+                    errorMsg.style.display = 'block';
+                    this.value = '';
+                    setTimeout(() => {
+                        errorMsg.style.display = 'none';
+                    }, 2000);
+                }
+            }
+        });
+        
+        function unlockContent() {
+            // 播放解锁音效
+            const unlockSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3');
+            unlockSound.volume = 0.3;
+            unlockSound.play();
+            
+            // 密码界面淡出
+            passwordScreen.style.opacity = '0';
+            passwordScreen.style.transition = 'opacity 1s';
+            
+            setTimeout(() => {
+                passwordScreen.style.display = 'none';
+                mainContent.style.display = 'block';
+                
+                // 自动播放背景音乐
+                playBirthdayMusic();
+                
+                // 启动主内容动画
+                startMainAnimation();
+            }, 1000);
+        }
+        
+        // ==================== 自动播放生日音乐 ====================
+        function playBirthdayMusic() {
+            // 播放科幻音乐
+            const music = new Audio('https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3');
+            music.volume = 0.2;
+            music.loop = true;
+            music.play().catch(e => {
+                console.log("音乐需要用户交互才能播放，将在点击页面后自动播放");
+                // 如果自动播放被阻止，点击页面后播放
+                document.addEventListener('click', function playOnClick() {
+                    music.play();
+                    document.removeEventListener('click', playOnClick);
+                });
+            });
+        }
+        
+        // ==================== 主内容动画 ====================
+        function createBinaryFall() {
+            const container = document.getElementById('binary-fall');
+            const chars = '01010101010101010101010101010101';
+            
+            function addBinaryChar() {
+                const char = document.createElement('div');
+                char.className = 'binary-char';
+                char.textContent = chars[Math.floor(Math.random() * chars.length)];
+                char.style.left = Math.random() * 100 + 'vw';
+                char.style.top = '-30px';
+                char.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                char.style.color = Math.random() > 0.7 ? '#00ff41' : 
+                                  (Math.random() > 0.5 ? '#00ccff' : '#003300');
+                container.appendChild(char);
+                
+                // 移除元素
+                setTimeout(() => char.remove(), 5000);
+            }
+            
+            setInterval(addBinaryChar, 50);
+        }
+        
+        function createSoundWave() {
+            const wave = document.getElementById('soundWave');
+            for (let i = 0; i < 40; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'wave-bar';
+                bar.style.animationDelay = (i * 0.05) + 's';
+                bar.style.height = Math.random() * 30 + 10 + 'px';
+                wave.appendChild(bar);
+            }
+        }
+        
+        function animateProgress() {
+            const progress1 = document.getElementById('progress1');
+            const progressText = document.getElementById('progressText');
+            const statusText = document.getElementById('statusText');
+            
+            const stages = [
+                { width: 25, text: "25% - 基础协议加载", delay: 1000 },
+                { width: 60, text: "60% - 生日模块编译", delay: 2000 },
+                { width: 85, text: "85% - 祝福加密传输", delay: 3000 },
+                { width: 100, text: "100% - 完成！", delay: 4000 }
+            ];
+            
+            let totalDelay = 0;
+            stages.forEach((stage, index) => {
+                setTimeout(() => {
+                    progress1.style.width = stage.width + '%';
+                    progressText.textContent = stage.text;
+                    
+                    if (index === stages.length - 1) {
+                        statusText.innerHTML = '<span style="color:#00ff00;">[校验成功 ✓]</span>';
+                        statusText.style.animation = 'blink 0.5s 3';
+                        // 显示扫描线
+                        document.getElementById('scanLine').style.display = 'block';
+                        // 播放完成音效
+                        playSound('complete');
+                    }
+                }, totalDelay);
+                totalDelay += stage.delay;
+            });
+        }
+        
+        // ==================== 音效系统 ====================
+        function playSound(type) {
+            const sounds = {
+                'key': 'https://assets.mixkit.co/sfx/preview/mixkit-keyboard-typing-1386.mp3',
+                'beep': 'https://assets.mixkit.co/sfx/preview/mixkit-electronic-retro-block-hit-2185.mp3',
+                'complete': 'https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3',
+                'hug': 'https://assets.mixkit.co/sfx/preview/mixkit-cute-heartbeat-750.mp3'
+            };
+            
+            if (sounds[type]) {
+                const audio = new Audio(sounds[type]);
+                audio.volume = type === 'key' ? 0.1 : 0.3;
+                audio.playbackRate = 1.5;
+                audio.play().catch(e => console.log("音效播放"));
+            }
+        }
+        
+        // ==================== 【新增】互动类指令数据 ====================
+        const jokes = [
+            "为什么程序员分不清万圣节和圣诞节？\n因为 Oct 31 == Dec 25",
+            "程序员最讨厌的动物是什么？\nBug（虫子）",
+            "雪，你知道为什么生日代码不会报错吗？\n因为今天所有bug都放假了！",
+            "为什么计算机总是很冷静？\n因为它有太多粉丝（散热风扇）",
+            "程序员为什么喜欢过生日？\n因为可以 compile（ candles + smile）",
+            "雪生日最需要什么？\n热水。因为代码需要热启动！"
+        ];
+        
+        const fortunes = [
+            "今日运势：★★★★★\n幸运物：热水杯\n宜：写bug-free代码\n忌：喝凉水",
+            "今日运势：★★★★☆\n你将收到神秘祝福\n代码运行速度+50%\nbug出现率-99%",
+            "今日运势：★★★☆☆\n小心！今天可能被夸得太开心\n导致忘记喝水",
+            "今日运势：★★★★★\n生日特权激活：\n• 全天笑容无限量\n• 祝福接收器满格\n• 快乐缓存区溢出",
+            "今日运势：特殊星象\n因为今天是生日，所以：\n所有星星都为你闪烁\n所有bug都自动修复"
+        ];
+        
+        const compliments = [
+            "雪，你今天看起来比最完美的代码还要优雅！✨",
+            "你的存在就像优化过的算法——高效又迷人！",
+            "如果美丽是种bug，那你就是个无法修复的永恒bug！",
+            "你今天比成功编译的程序还要耀眼！🎉",
+            "你的笑容可以治愈所有404错误！❤️",
+            "你比最丝滑的UI动画还要让人愉悦！",
+            "今天你拥有最高权限：无限可爱！"
+        ];
+        
+        // ==================== 【新增】拥抱动画函数 ====================
+        function createHugAnimation() {
+            playSound('hug');
+            
+            // 在屏幕多个位置显示拥抱emoji
+            const positions = [
+                {x: '30%', y: '30%'},
+                {x: '70%', y: '40%'},
+                {x: '50%', y: '60%'},
+                {x: '20%', y: '70%'},
+                {x: '80%', y: '30%'}
+            ];
+            
+            positions.forEach((pos, index) => {
+                setTimeout(() => {
+                    const hug = document.createElement('div');
+                    hug.className = 'hug-emoji';
+                    hug.innerHTML = '🤗';
+                    hug.style.left = pos.x;
+                    hug.style.top = pos.y;
+                    hug.style.fontSize = `${Math.random() * 40 + 60}px`;
+                    
+                    document.body.appendChild(hug);
+                    
+                    // 移除元素
+                    setTimeout(() => {
+                        hug.style.opacity = '0';
+                        hug.style.transition = 'opacity 0.5s';
+                        setTimeout(() => hug.remove(), 500);
+                    }, 1500);
+                }, index * 300);
+            });
+            
+            return "槐梦发来了温暖的虚拟拥抱！🤗";
+        }
+        
+        // ==================== 交互控制台 ====================
+        const commandInput = document.getElementById('commandInput');
+        commandInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const cmd = commandInput.value.toLowerCase().trim();
+                commandInput.value = '';
+                
+                playSound('beep');
+                
+                // 扩展的指令列表
+                switch(cmd) {
+                    case 'help':
+                        showHelp();
+                        break;
+                    case 'secret':
+                        document.querySelector('.hidden-msg').style.cssText = 'color:#00ff41; background:#001a00; box-shadow:0 0 30px #00ff41;';
+                        alert('🔓 隐藏协议已高亮显示！');
+                        break;
+                    case 'cake':
+                        alert('🎂 虚拟蛋糕已送达！\n配料：快乐奶油100%\n祝福巧克力∞\n友谊糖霜永久');
+                        break;
+                    case '雪':
+                    case 'xue':
+                        alert('👤 用户档案：\n姓名：雪\n生日：1月15日\n状态：生日模式激活中\n特质：可爱又傻气\n特别提醒：记得多喝热水！');
+                        break;
+                    case '槐梦':
+                    case 'huaimeng':
+                        alert('📧 发送者信息：\n代号：槐梦\n身份：神秘网友\n留言："傻子，生日快乐！多喝热水。"\n传输时间：现在\n有效期：永远');
+                        break;
+                        
+                    // =========== 【新增】互动类指令 ===========
+                    case 'joke':
+                        const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+                        alert('😄 程序猿冷笑话：\n\n' + randomJoke);
+                        break;
+                        
+                    case 'fortune':
+                    case '运势':
+                        const randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+                        alert('🔮 雪的今日运势：\n\n' + randomFortune);
+                        break;
+                        
+                    case 'compliment':
+                    case '夸夸':
+                        const randomCompliment = compliments[Math.floor(Math.random() * compliments.length)];
+                        alert('💖 随机夸夸机：\n\n' + randomCompliment);
+                        break;
+                        
+                    case 'hug':
+                    case '拥抱':
+                        const hugMsg = createHugAnimation();
+                        alert('❤️ ' + hugMsg);
+                        break;
+                    // ======================================
+                        
+                    default:
+                        if (cmd) {
+                            // 模糊匹配
+                            if (cmd.includes('笑话') || cmd.includes('搞笑')) {
+                                const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+                                alert('😄 检测到笑话关键词：\n\n' + randomJoke);
+                            } else if (cmd.includes('运势') || cmd.includes('运气')) {
+                                const randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+                                alert('🔮 检测到运势关键词：\n\n' + randomFortune);
+                            } else if (cmd.includes('夸') || cmd.includes('赞美')) {
+                                const randomCompliment = compliments[Math.floor(Math.random() * compliments.length)];
+                                alert('💖 检测到夸奖关键词：\n\n' + randomCompliment);
+                            } else if (cmd.includes('抱') || cmd.includes('hug')) {
+                                const hugMsg = createHugAnimation();
+                                alert('❤️ ' + hugMsg);
+                            } else {
+                                alert(`未知指令: "${cmd}"\n输入 help 查看可用指令`);
+                            }
+                        }
+                }
+            }
+        });
+        
+        // ==================== 【新增】帮助函数 ====================
+        function showHelp() {
+            alert(`🎮 可用指令大全：
+            
+🔧 基础指令：
+• help - 显示此帮助
+• secret - 显示隐藏协议
+• cake - 接收虚拟蛋糕
+• 雪 / xue - 查看用户信息
+• 槐梦 / huaimeng - 查看发送者
+
+💬 互动指令：
+• joke - 程序猿冷笑话
+• fortune - 今日运势
+• compliment - 随机夸夸
+• hug - 发送虚拟拥抱
+
+🎯 快捷方式：
+输入部分关键词也能识别！
+如："笑话"、"运势"、"夸"、"抱"
+
+💡 彩蛋：
+• 点击隐藏消息区域
+• 点击右下角"激活隐藏矩阵"`);
+        }
+        
+        // 模拟键盘音效
+        commandInput.addEventListener('input', () => {
+            if (Math.random() > 0.7) playSound('key');
+        });
+        
+        // ==================== 彩蛋功能 ====================
+        function showEasterEgg() {
+            const msg = document.querySelector('.hidden-msg');
+            msg.innerHTML = `
+                // 🚀 隐藏协议激活成功！<br>
+                // 用户: 雪<br>
+                // 权限等级: <span style="color:#ffff00;">宇宙级VIP</span><br>
+                // 解锁内容:<br>
+                // █ 终身快乐订阅<br>
+                // █ 无限热水供应<br>
+                // █ 防bug护盾 v2.0<br>
+                // █ 时空旅行通行证<br>
+                // █ 每日夸夸配额: ∞<br>
+                // // 验证码: BDAY-${Math.random().toString(36).substr(2, 8).toUpperCase()}<br>
+                // // 到期时间: 永远
+            `;
+            msg.style.cursor = 'default';
+            playSound('complete');
+        }
+        
+        function showMatrix() {
+            const binaryFall = document.getElementById('binary-fall');
+            binaryFall.style.zIndex = '9999';
+            binaryFall.style.background = 'rgba(0,0,0,0.9)';
+            
+            // 增加密度
+            for(let i=0; i<30; i++) {
+                setTimeout(() => {
+                    const char = document.createElement('div');
+                    char.className = 'binary-char';
+                    char.textContent = Math.random() > 0.5 ? '1' : '0';
+                    char.style.left = Math.random() * 100 + 'vw';
+                    char.style.top = '-30px';
+                    char.style.color = Math.random() > 0.5 ? '#00ff00' : '#00ffff';
+                    char.style.fontSize = '24px';
+                    char.style.animationDuration = '1s';
+                    binaryFall.appendChild(char);
+                    setTimeout(() => char.remove(), 1000);
+                }, i * 50);
+            }
+            
+            setTimeout(() => {
+                binaryFall.style.zIndex = '0';
+                binaryFall.style.background = 'none';
+            }, 3000);
+            alert('🌌 矩阵特效增强！\n数字密度 +300%\n持续时间: 3秒');
+        }
+        
+        // ==================== 初始化 ====================
+        function startMainAnimation() {
+            createBinaryFall();
+            createSoundWave();
+            animateProgress();
+            
+            // 随机键盘音效
+            setInterval(() => {
+                if (Math.random() > 0.8) playSound('key');
+            }, 3000);
+            
+            // 焦点到输入框
+            setTimeout(() => commandInput.focus(), 10000);
+        }
+        
+        // 页面加载时初始化密码界面
+        window.onload = function() {
+            passwordInput.focus();
+            
+            // 添加浮动动画定义
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes float {
+                    0% { transform: translateY(0px); opacity: 0; }
+                    10% { opacity: 0.3; }
+                    90% { opacity: 0.3; }
+                    100% { transform: translateY(-100vh); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        };
+    </script>
+</body>
+</html>

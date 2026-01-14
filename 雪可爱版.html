@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给雪的生日惊喜 ✨</title>
+    <style>
+        /* --- 1. 整体可爱风样式 --- */
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Noto+Sans+SC:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            background-color: #ffdde1; /* 备用色 */
+            background-image: linear-gradient(to top, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Noto Sans SC', sans-serif;
+            overflow: hidden;
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><text y="18" font-size="18">💖</text></svg>'), auto;
+        }
+
+        /* 卡片容器 */
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            width: 350px;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(255, 105, 135, 0.3);
+            text-align: center;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        h1 {
+            color: #ff6b81;
+            font-family: 'Fredoka One', cursive;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .nickname {
+            color: #a29bfe;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        /* 隐藏的内容区域 */
+        #surprise-area {
+            display: none; /* 初始隐藏 */
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+        p {
+            color: #636e72;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 105, 135, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 105, 135, 0.6);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 热水梗的特殊样式 */
+        .hot-water {
+            font-size: 4rem;
+            margin: 20px 0;
+            animation: shake 2s infinite;
+            display: inline-block;
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-10deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* 背景飘落的元素 */
+        .falling-item {
+            position: absolute;
+            top: -50px;
+            font-size: 20px;
+            animation: fall linear forwards;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        /* 签名 */
+        .signature {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #b2bec3;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div id="intro">
+            <h1>Hey Snow! ❄️</h1>
+            <span class="nickname">1月15日 限定版</span>
+            <p>系统检测到一个小可爱的生日到了...</p>
+            <br>
+            <button class="btn" onclick="openGift()">拆开礼物 🎁</button>
+        </div>
+
+        <div id="surprise-area">
+            <h1>🎂 生日快乐!</h1>
+            <p>To: 傻子雪</p>
+            
+            <div class="hot-water">🍵</div>
+            
+            <p>这是我为你准备的顶级礼物：<br><strong>万能の热水</strong></p>
+            <p style="font-size: 0.9rem; color: #ff6b81;">(乖乖喝掉，包治百病)</p>
+            
+            <div class="signature">
+                From: 槐梦 ☁️
+            </div>
+            
+            <button class="btn" style="margin-top:10px; font-size:0.9rem; padding: 10px 20px;" onclick="moreLove()">再来点祝福 ✨</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. 拆礼物逻辑 ---
+        function openGift() {
+            const intro = document.getElementById('intro');
+            const surprise = document.getElementById('surprise-area');
+            
+            // 隐藏封面
+            intro.style.display = 'none';
+            
+            // 显示内容
+            surprise.style.display = 'block';
+            
+            // 简单的淡入效果
+            setTimeout(() => {
+                surprise.style.opacity = '1';
+            }, 50);
+
+            // 触发漫天花雨
+            startConfetti();
+        }
+
+        // --- 2. 更多互动 ---
+        function moreLove() {
+            alert("傻子，愿你年年皆胜意，岁岁都欢愉！\n记得按时吃饭，少熬夜！👋");
+            // 疯狂掉落
+            for(let i=0; i<30; i++) {
+                createFallingItem(['❤️', '✨', '❄️', '🧁'][Math.floor(Math.random()*4)]);
+            }
+        }
+
+        // --- 3. 背景飘落特效 (雪花+爱心) ---
+        function createFallingItem(emoji) {
+            const item = document.createElement('div');
+            item.classList.add('falling-item');
+            item.innerText = emoji || ['❄️', '🌸', '🍬', '🎀'][Math.floor(Math.random() * 4)];
+            
+            // 随机位置和速度
+            item.style.left = Math.random() * 100 + 'vw';
+            item.style.animationDuration = Math.random() * 3 + 2 + 's'; // 2-5秒
+            item.style.fontSize = Math.random() * 10 + 15 + 'px';
+            
+            document.body.appendChild(item);
+
+            // 动画结束后删除元素，防止卡顿
+            item.addEventListener('animationend', () => {
+                item.remove();
+            });
+        }
+
+        // 自动持续掉落
+        setInterval(() => {
+            createFallingItem();
+        }, 300);
+
+        // --- 4. 鼠标点击爆爱心特效 ---
+        document.addEventListener('click', function(e) {
+            const heart = document.createElement('div');
+            heart.innerText = '💗';
+            heart.style.position = 'fixed';
+            heart.style.left = e.clientX + 'px';
+            heart.style.top = e.clientY + 'px';
+            heart.style.fontSize = '20px';
+            heart.style.pointerEvents = 'none';
+            heart.style.animation = 'floatUp 1s ease-out forwards';
+            
+            // 动态添加一个上浮动画样式
+            if (!document.getElementById('anim-style')) {
+                const style = document.createElement('style');
+                style.id = 'anim-style';
+                style.innerHTML = `
+                    @keyframes floatUp {
+                        0% { opacity: 1; transform: translateY(0) scale(1); }
+                        100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            document.body.appendChild(heart);
+            
+            setTimeout(() => {
+                heart.remove();
+            }, 1000);
+        });
+        
+        // 初始触发一次
+        function startConfetti() {
+            for(let i=0; i<50; i++) {
+                setTimeout(() => {
+                     createFallingItem(['🎉', '🎂', '🥳'][Math.floor(Math.random()*3)]);
+                }, i * 50);
+            }
+        }
+
+    </script>
+</body>
+</html>
