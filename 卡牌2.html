@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>槐梦 - 矩阵数字雨全息金属卡牌</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+
+        /* === 动态颜色主题系统 === */
+        :root, .theme-purple {
+            --neon-core: #f0abfc;
+            --neon-base: #d946ef; /* 矩阵雨主色 1 */
+            --neon-deep: #701a75;
+            --neon-alt: #06b6d4;  /* 矩阵雨主色 2 */
+            
+            --metal-light: #4a4a5a;
+            --metal-base: #22222a;
+            --metal-dark: #0a0a0c;
+        }
+
+        .theme-green {
+            --neon-core: #bbf7d0;
+            --neon-base: #22c55e;
+            --neon-deep: #14532d;
+            --neon-alt: #10b981;
+        }
+
+        .theme-blue {
+            --neon-core: #bfdbfe;
+            --neon-base: #3b82f6;
+            --neon-deep: #1e3a8a;
+            --neon-alt: #0ea5e9;
+        }
+
+        .theme-red {
+            --neon-core: #fecaca;
+            --neon-base: #ef4444;
+            --neon-deep: #7f1d1d;
+            --neon-alt: #f97316;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            perspective: 1200px; 
+            transition: background 0.5s ease;
+        }
+
+        /* 环境光与粒子底图 */
+        .ambient-bg {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 50% 50%, var(--neon-deep) 0%, transparent 65%),
+                url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.04"/></svg>');
+            z-index: 0;
+            opacity: 0.3;
+            transition: background 0.5s ease;
+        }
+
+        .pulse-light {
+            position: absolute;
+            width: 500px;
+            height: 700px;
+            background: var(--neon-base);
+            filter: blur(160px);
+            opacity: 0.25;
+            animation: pulse 4s ease-in-out infinite alternate;
+            z-index: 1;
+            transition: background 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.15; transform: scale(0.95); }
+            100% { opacity: 0.35; transform: scale(1.05); }
+        }
+
+        /* --- 核心：3D 悬浮摇曳动画 --- */
+        .card-container {
+            width: 420px;
+            height: 600px;
+            position: relative;
+            z-index: 10;
+            transform-style: preserve-3d;
+            animation: subtleSway 8s ease-in-out infinite;
+        }
+
+        @keyframes subtleSway {
+            0% { transform: rotateY(-12deg) rotateX(4deg) translateY(0px); }
+            50% { transform: rotateY(12deg) rotateX(-2deg) translateY(-12px); }
+            100% { transform: rotateY(-12deg) rotateX(4deg) translateY(0px); }
+        }
+
+        .card-front-wrapper {
+            position: absolute;
+            inset: 0;
+            transform-style: preserve-3d;
+            filter: 
+                drop-shadow(-3px 3px 0px rgba(255,255,255,0.1)) 
+                drop-shadow(-5px 5px 0px rgba(0,0,0,0.8)) 
+                drop-shadow(0 0 25px rgba(0,0,0,0.8));
+        }
+
+        /* 1. 核心：替换为全息矩阵数字雨 Canvas */
+        .matrix-canvas {
+            position: absolute;
+            inset: -4px; 
+            width: calc(100% + 8px);
+            height: calc(100% + 8px);
+            clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 300px, 25px 280px, 25px 200px, 0 180px, 0 20px);
+            z-index: 1;
+            opacity: 0.9;
+            /* 增加全息发光感 */
+            filter: drop-shadow(0 0 10px var(--neon-base)) brightness(1.2);
+            mix-blend-mode: screen;
+        }
+
+        /* 2. 重金属装甲遮罩 (带立体倒角和金属渐变) */
+        .inner-armor-mask {
+            position: absolute;
+            inset: 3px; 
+            background: linear-gradient(135deg, 
+                var(--metal-light) 0%, 
+                var(--metal-base) 25%, 
+                var(--metal-dark) 50%, 
+                #000 75%, 
+                var(--metal-light) 100%
+            );
+            clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 300px, 25px 280px, 25px 200px, 0 180px, 0 20px);
+            z-index: 2;
+        }
+
+        /* 3. 内嵌屏幕金属斜坡 */
+        .armor-bevel {
+            position: absolute;
+            inset: 22px 42px 22px 47px;
+            background: #000;
+            z-index: 3;
+            box-shadow: 
+                inset 0px 5px 10px rgba(0,0,0,0.9),
+                inset 0px -2px 5px rgba(255,255,255,0.2),
+                0 0 0 1px var(--metal-light); 
+            border-radius: 6px;
+        }
+
+        /* 4. 金属动态高光层 */
+        .metal-glare {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(105deg, 
+                transparent 20%, 
+                rgba(255,255,255,0.05) 25%, 
+                rgba(255,255,255,0.2) 30%, 
+                rgba(255,255,255,0.05) 35%, 
+                transparent 40%
+            );
+            background-size: 200% 100%;
+            z-index: 4;
+            clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 300px, 25px 280px, 25px 200px, 0 180px, 0 20px);
+            animation: glareMove 8s ease-in-out infinite;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+
+        @keyframes glareMove {
+            0% { background-position: 150% 0; }
+            50% { background-position: -50% 0; }
+            100% { background-position: 150% 0; }
+        }
+
+        /* 中心人物图片 */
+        .character-img {
+            position: absolute;
+            inset: 25px 45px 25px 50px;
+            width: calc(100% - 95px);
+            height: calc(100% - 50px);
+            object-fit: cover;
+            filter: contrast(1.15) saturate(1.2) brightness(1.05);
+            border-radius: 4px;
+            z-index: 5;
+        }
+
+        /* 屏幕内部流光线与故障纹理 */
+        .screen-glitch {
+            position: absolute;
+            inset: 25px 45px 25px 50px;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+            z-index: 6;
+            pointer-events: none;
+        }
+
+        .hologram-scan {
+            position: absolute;
+            inset: 25px 45px;
+            background: linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.5) 50%, var(--neon-alt) 55%, transparent 100%);
+            height: 10px;
+            z-index: 10;
+            animation: scanLine 3s ease-in-out infinite alternate;
+            pointer-events: none;
+            mix-blend-mode: screen;
+            opacity: 0.6;
+        }
+
+        @keyframes scanLine {
+            0% { top: 25px; }
+            100% { top: calc(100% - 35px); }
+        }
+
+        /* --- UI 数据与高光文字 --- */
+        .ui-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 12;
+            color: #fff;
+            transform: translateZ(20px);
+        }
+
+        [contenteditable="true"] {
+            outline: none;
+            cursor: text;
+            transition: all 0.2s;
+        }
+        [contenteditable="true"]:focus {
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            text-shadow: none;
+        }
+
+        .tech-badge {
+            position: absolute;
+            left: 8px;
+            top: 220px;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            letter-spacing: 6px;
+            color: var(--neon-core);
+            text-shadow: 0 0 5px var(--neon-base), 0 0 15px var(--neon-base);
+            transition: color 0.5s, text-shadow 0.5s;
+        }
+
+        .data-stream {
+            position: absolute;
+            right: 15px;
+            top: 40px;
+            font-size: 10px;
+            text-align: right;
+            line-height: 1.6;
+            color: var(--neon-alt);
+            text-shadow: 0 0 5px var(--neon-alt);
+            font-weight: bold;
+            transition: color 0.5s, text-shadow 0.5s;
+        }
+
+        .name-base {
+            position: absolute;
+            bottom: 30px;
+            left: 45px;
+            width: calc(100% - 90px);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            padding: 8px 0;
+            border-top: 1px solid var(--neon-base);
+            border-bottom: 1px solid var(--neon-alt);
+            box-shadow: 0 0 15px var(--neon-deep);
+            backdrop-filter: blur(2px);
+            transition: border-color 0.5s, box-shadow 0.5s;
+        }
+
+        .name-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 34px;
+            font-weight: 900;
+            color: #fff;
+            text-align: center;
+            text-shadow: 0 0 8px #fff, 0 0 20px var(--neon-base), 0 0 40px var(--neon-deep);
+            letter-spacing: 4px;
+            animation: textFlicker 5s infinite alternate;
+        }
+
+        @keyframes textFlicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; text-shadow: 0 0 8px #fff, 0 0 20px var(--neon-base); }
+            20%, 24%, 55% { opacity: 0.7; text-shadow: 0 0 2px var(--neon-base); }
+        }
+
+        .sub-data {
+            position: absolute;
+            bottom: 12px;
+            left: 45px;
+            width: calc(100% - 90px);
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            color: #ccc;
+            text-shadow: 0 0 4px var(--neon-alt);
+            font-weight: bold;
+            transition: text-shadow 0.5s;
+        }
+
+        #imageInput { display: none; }
+        
+        .hint {
+            position: fixed;
+            bottom: 25px;
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-align: center;
+            width: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="theme-purple">
+
+    <input type="file" id="imageInput" accept="image/*">
+
+    <div class="ambient-bg"></div>
+    <div class="pulse-light"></div>
+
+    <div class="card-container" id="cardContainer">
+        
+        <div class="card-front-wrapper">
+            
+            <canvas id="matrixCanvas" class="matrix-canvas"></canvas>
+            
+            <div class="inner-armor-mask"></div>
+            <div class="metal-glare"></div>
+            <div class="armor-bevel"></div>
+
+            <img src="https://images.unsplash.com/photo-1618331835717-801e976710b2?q=80&w=600&auto=format&fit=crop" id="characterImg" class="character-img" alt="槐梦">
+            <div class="screen-glitch"></div>
+            <div class="hologram-scan"></div>
+
+            <div class="ui-layer">
+                <div class="tech-badge" contenteditable="true">PANDORA BOX</div>
+
+                <div class="data-stream" contenteditable="true">
+                    SYNC RATE<br><span style="color:#fff">99.9%</span><br><br>
+                    NEURAL LINK<br><span style="color:#fff">STABLE</span>
+                </div>
+
+                <div class="name-base">
+                    <div class="name-text" contenteditable="true">HUAIMENG</div>
+                </div>
+
+                <div class="sub-data">
+                    <div contenteditable="true">CLASS: S-TIER</div>
+                    <div contenteditable="true">ID: Z-1001</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hint">快捷键: I-换图 | 1-紫 2-绿 3-蓝 4-红 | 双击编辑</div>
+
+    <script>
+        // === 1. UI 交互与换图逻辑 ===
+        const imageImg = document.getElementById('characterImg');
+        const imageInput = document.getElementById('imageInput');
+        const editableElements = document.querySelectorAll('[contenteditable="true"]');
+        const cardContainer = document.getElementById('cardContainer');
+
+        document.addEventListener('keydown', (e) => {
+            if (document.activeElement.isContentEditable) return; 
+            const key = e.key.toLowerCase();
+            
+            // 更换图片
+            if (key === 'i') imageInput.click();
+            
+            // 切换主题颜色
+            if (key === '1') document.body.className = 'theme-purple';
+            if (key === '2') document.body.className = 'theme-green';
+            if (key === '3') document.body.className = 'theme-blue';
+            if (key === '4') document.body.className = 'theme-red';
+        });
+
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) { imageImg.src = event.target.result; }
+                reader.readAsDataURL(file);
+            }
+            this.value = ''; 
+        });
+
+        editableElements.forEach(el => {
+            el.addEventListener('focus', () => {
+                cardContainer.style.animation = 'none';
+                cardContainer.style.transform = 'rotateY(0deg) rotateX(0deg) translateY(0px)'; 
+                cardContainer.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            });
+            el.addEventListener('blur', () => {
+                cardContainer.style.transition = 'none';
+                void cardContainer.offsetWidth; 
+                cardContainer.style.animation = 'subtleSway 8s ease-in-out infinite';
+            });
+        });
+
+        // === 2. 高级全息矩阵数字雨核心代码 ===
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设定画布分辨率
+        canvas.width = 440; 
+        canvas.height = 620;
+
+        // 赛博朋克字符集 (日文片假名 + 拉丁字母 + 数字)
+        const katakana = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const alphabet = katakana + latin + nums;
+
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+
+        // 初始化下落位置
+        for (let x = 0; x < columns; x++) {
+            drops[x] = Math.random() * canvas.height; // 随机初始高度，避免一开始整齐下落
+        }
+
+        function drawMatrix() {
+            // 获取当前主题对应的 CSS 颜色变量
+            const style = getComputedStyle(document.body);
+            const colorBase = style.getPropertyValue('--neon-base').trim();
+            const colorAlt = style.getPropertyValue('--neon-alt').trim();
+
+            // 制造半透明的黑色拖尾效果
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.font = fontSize + 'px "Rajdhani", monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                // 随机抽取一个字符
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                
+                // 颜色交替：让矩阵雨拥有深浅两色交织的全息质感
+                ctx.fillStyle = Math.random() > 0.3 ? colorBase : colorAlt;
+                
+                // 偶尔出现白色的“流星”高亮字符
+                if (Math.random() > 0.95) ctx.fillStyle = '#fff';
+
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                // 如果字符掉出屏幕，以一定概率回到顶部
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        // 以 33 毫秒的间隔刷新（约 30 FPS）
+        setInterval(drawMatrix, 33);
+
+    </script>
+</body>
+</html>
