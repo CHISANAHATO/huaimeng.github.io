@@ -1,0 +1,230 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nosifer&display=swap');
+
+#sandbox_panel,
+#sandbox_panel .pnl_body {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+.horror-container {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 20% 20%, #260000 0%, transparent 40%),
+        radial-gradient(ellipse at 85% 80%, #1b0000 0%, transparent 45%),
+        #030000;
+    border: 2px solid #3a0000;
+    border-radius: 4px;
+    box-shadow:
+        inset 0 0 50px #000,
+        0 5px 25px rgba(100,0,0,.4);
+    padding: 80px 20px;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* 背景血迹 */
+.blood-system {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* 暗红色背景晕染 */
+.blood-stain {
+    position: absolute;
+    width: 160px;
+    height: 100px;
+    background: radial-gradient(
+        ellipse at 40% 40%,
+        rgba(100,0,0,.45),
+        rgba(65,0,0,.22) 35%,
+        transparent 72%
+    );
+    filter: blur(8px);
+}
+
+.stain-a {
+    top: 20%;
+    left: 5%;
+}
+
+.stain-b {
+    bottom: 10%;
+    right: 8%;
+    transform: rotate(35deg);
+}
+
+/* 不规则血液飞溅纹理 */
+.blood-splatter {
+    position: absolute;
+    inset: 0;
+    opacity: .8;
+    background-image:
+        radial-gradient(circle at 8% 28%, #780000 1px, transparent 2px),
+        radial-gradient(circle at 14% 35%, #4d0000 2px, transparent 3px),
+        radial-gradient(circle at 21% 75%, #760000 1px, transparent 2px),
+        radial-gradient(circle at 34% 15%, #650000 2px, transparent 3px),
+        radial-gradient(circle at 47% 88%, #870000 1px, transparent 2px),
+        radial-gradient(circle at 61% 24%, #690000 2px, transparent 3px),
+        radial-gradient(circle at 77% 68%, #800000 1px, transparent 2px),
+        radial-gradient(circle at 91% 30%, #5b0000 2px, transparent 3px),
+        radial-gradient(circle at 95% 82%, #850000 1px, transparent 2px);
+}
+
+/* 黑色爪痕 */
+.claw-marks {
+    position: absolute;
+    top: 15%;
+    left: 10%;
+    transform: rotate(-25deg);
+    opacity: .8;
+    z-index: 3;
+}
+
+.claw {
+    display: inline-block;
+    width: 6px;
+    height: 140px;
+    background: #000;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    margin: 0 6px;
+    box-shadow:
+        0 0 15px #000,
+        inset 0 0 8px #111;
+    filter: blur(.5px);
+}
+
+.claw:nth-child(1) {
+    height: 100px;
+    margin-top: 40px;
+}
+
+.claw:nth-child(2) {
+    height: 150px;
+}
+
+.claw:nth-child(3) {
+    height: 120px;
+    margin-top: 15px;
+}
+
+/* 蜘蛛网 */
+.web-texture {
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    width: 150px;
+    height: 150px;
+    background:
+        radial-gradient(circle at 10% 10%, transparent 10px, #2a0000 12px, transparent 13px),
+        radial-gradient(circle at 10% 10%, transparent 20px, #2a0000 22px, transparent 23px),
+        linear-gradient(135deg, transparent 50px, #2a0000 51px, transparent 52px),
+        linear-gradient(45deg, transparent 30px, #2a0000 31px, transparent 32px);
+    opacity: .1;
+    z-index: 1;
+}
+
+/* 中央字体 */
+.flamboyant-text {
+    font-family: 'Nosifer', Impact, serif;
+    font-size: 38px;
+    color: #4a0000;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    position: relative;
+    z-index: 10;
+
+    text-shadow:
+        .5px .5px 0 #990000,
+        -.5px -.5px 0 #000,
+        2px 2px 1px #000,
+        0 0 10px rgba(74,0,0,.5);
+
+    animation: bloody-flicker 3s infinite;
+    transition: all .4s cubic-bezier(.175,.885,.32,1.275);
+    cursor: crosshair;
+}
+
+.flamboyant-text:hover {
+    animation: none;
+    transform: scale(1.15);
+    letter-spacing: 10px;
+    color: #ff1a1a;
+
+    text-shadow:
+        0 0 10px #f00,
+        0 0 30px #f00,
+        0 0 50px #c00,
+        0 0 80px #8b0000,
+        0 0 120px #4a0000;
+}
+
+/* 字体闪烁 */
+@keyframes bloody-flicker {
+    0%, 50%, 100% {
+        color: #4a0000;
+        text-shadow:
+            .5px .5px 0 #990000,
+            -.5px -.5px 0 #000,
+            2px 2px 1px #000,
+            0 0 10px rgba(74,0,0,.5);
+    }
+
+    20%, 40%, 80% {
+        color: #000;
+        text-shadow: none;
+    }
+
+    21%, 41%, 81% {
+        color: #8b0000;
+        text-shadow:
+            .5px .5px 0 #f00,
+            -.5px -.5px 0 #000,
+            2px 2px 1px #000,
+            0 0 15px #f00,
+            0 0 35px #8b0000;
+    }
+
+    10% {
+        transform: translate(.5px,-.5px);
+    }
+
+    30% {
+        transform: translate(-.5px,.5px);
+    }
+}
+</style>
+
+<div class="horror-container">
+
+    <div class="web-texture"></div>
+
+    <div class="claw-marks">
+        <div class="claw"></div>
+        <div class="claw"></div>
+        <div class="claw"></div>
+    </div>
+
+    <div class="blood-system">
+
+        <div class="blood-stain stain-a"></div>
+        <div class="blood-stain stain-b"></div>
+
+        <div class="blood-splatter"></div>
+
+    </div>
+
+    <div class="flamboyant-text">HUAI MENG</div>
+
+</div>
